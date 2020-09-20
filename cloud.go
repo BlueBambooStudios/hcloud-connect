@@ -14,7 +14,7 @@ const (
 	hcloudEndpointENVVar        = "HCLOUD_ENDPOINT"
 	hcloudDebugENVVar           = "HCLOUD_DEBUG"
 	hcloudLoadBalancerENVVar    = "HCLOUD_LOAD_BALANCER"
-    hcloudPrivateNetworksENVVar = "HCLOUD_USE_PRIVATE_NETWORK"
+	hcloudPrivateNetworksENVVar = "HCLOUD_USE_PRIVATE_NETWORK"
 	nodeNameENVVar              = "NODE_NAME"
 	providerVersion             = "v1.0.0"
 )
@@ -23,7 +23,7 @@ type cloud struct {
 	client         *hcloud.Client
 	loadBalancerID int
 	nodeName       string
-    privateNetwork bool
+	privateNetwork bool
 }
 
 func newCloud() (*cloud, error) {
@@ -79,7 +79,7 @@ func newCloud() (*cloud, error) {
 		client:         client,
 		loadBalancerID: loadBalancerID,
 		nodeName:       nodeName,
-        privateNetwork: os.Getenv(hcloudPrivateNetworksENVVar) != "",
+		privateNetwork: os.Getenv(hcloudPrivateNetworksENVVar) != "",
 	}, nil
 }
 
