@@ -1,5 +1,7 @@
 # Hetzner Cloud Connect
 
+![golangci-lint](https://github.com/BlueBambooStudios/hcloud-connect/workflows/golangci-lint/badge.svg)![Docker](https://github.com/BlueBambooStudios/hcloud-connect/workflows/Docker/badge.svg)
+
 Handles automatically adding servers to load balancers
 
 ## Usage
