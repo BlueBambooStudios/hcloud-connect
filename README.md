@@ -6,7 +6,26 @@ Handles automatically adding servers to load balancers
 
 All configuration is passed with environment variables. We recommend storing these variables as secrets.
 
-Launch as a daemon set, see `deployment/daemonset.yaml`.
+First create a secret containing your hetzner credentials:
+
+```
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hcloud
+  namespace: kube-system
+type: Opaque
+stringData:
+  token: "{HETZNER_API_TOKEN}"
+  loadBalancer: "{LOAD_BALANCER_ID}"
+```
+
+Then deploy the daemonset to your cluster:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/BlueBambooStudios/hcloud-connect/master/deployment/daemonset.yaml
+```
 
 ### Environment variables
 
