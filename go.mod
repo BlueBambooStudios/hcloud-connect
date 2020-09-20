@@ -1,4 +1,4 @@
-module git.remxapp.com/hetzner/connect
+module github.com/bluebamboostudios/hcloud-connect
 
 go 1.14
 
