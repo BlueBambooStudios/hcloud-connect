@@ -16,7 +16,6 @@ const (
 	hcloudLoadBalancerENVVar    = "HCLOUD_LOAD_BALANCER"
     hcloudPrivateNetworksENVVar = "HCLOUD_USE_PRIVATE_NETWORK"
 	nodeNameENVVar              = "NODE_NAME"
-	providerName                = "hcloud-connect"
 	providerVersion             = "v1.0.0"
 )
 
