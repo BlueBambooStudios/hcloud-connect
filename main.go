@@ -74,7 +74,7 @@ func deregister(c *hconnect.Cloud) error {
 		return err
 	}
 
-	err = c.LoadBalancer.Register(c, server)
+	err = c.LoadBalancer.Deregister(c, server)
 	if err != nil {
 		return err
 	}
