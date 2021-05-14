@@ -60,7 +60,7 @@ func newFirewall(c *hcloud.Client) (*Firewall, error) {
 		}
 
 		if v2, ok := os.LookupEnv(hcloudFirewallTargetsIP6ENVVar); ok {
-			fwTargetsIP6 = strings.TrimSpace(v2) != ""
+			fwTargetsIP6 = strings.ToLower(strings.TrimSpace(v2)) == "true"
 		}
 	}
 
