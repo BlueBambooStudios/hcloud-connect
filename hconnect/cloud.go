@@ -20,6 +20,7 @@ type Cloud struct {
 	Client       *hcloud.Client
 	NodeName     string
 	LoadBalancer *LoadBalancer
+	Firewall     *Firewall
 }
 
 func NewCloud() (*Cloud, error) {
@@ -49,6 +50,7 @@ func NewCloud() (*Cloud, error) {
 		opts = append(opts, hcloud.WithEndpoint(endpoint))
 	}
 	client := hcloud.NewClient(opts...)
+	var err error
 
 	loadBalancer, err := newLoadBalancer(client)
 
@@ -56,9 +58,15 @@ func NewCloud() (*Cloud, error) {
 		return nil, err
 	}
 
-	_, _, err2 := client.Server.List(context.Background(), hcloud.ServerListOpts{})
-	if err2 != nil {
-		return nil, fmt.Errorf("%s: %w", op, err2)
+	firewall, err := newFirewall(client)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, _, err = client.Server.List(context.Background(), hcloud.ServerListOpts{})
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	fmt.Printf("Hetzner Cloud k8s connect %s started\n", providerVersion)
 
@@ -66,5 +74,6 @@ func NewCloud() (*Cloud, error) {
 		Client:       client,
 		NodeName:     nodeName,
 		LoadBalancer: loadBalancer,
+		Firewall:     firewall,
 	}, nil
 }

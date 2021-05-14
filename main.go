@@ -50,6 +50,7 @@ func main() {
 	}
 }
 
+// Registers everything (startup)
 func register(c *hconnect.Cloud) error {
 	var err error
 
@@ -63,9 +64,15 @@ func register(c *hconnect.Cloud) error {
 		return err
 	}
 
+	err = c.Firewall.Register(c, server)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// Deregisters everything (prepares for shutdown)
 func deregister(c *hconnect.Cloud) error {
 	var err error
 
@@ -79,9 +86,16 @@ func deregister(c *hconnect.Cloud) error {
 		return err
 	}
 
+	err = c.Firewall.Deregister(c, server)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// Gets the hetzner api representation of this node
+// 'c' is the cloud instance from hconnect.NewCloud()
 func getServer(c *hconnect.Cloud) (server *hcloud.Server, err error) {
 	server, _, err = c.Client.Server.GetByName(context.Background(), c.NodeName)
 	if err != nil {

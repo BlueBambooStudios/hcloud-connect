@@ -34,7 +34,7 @@ func newLoadBalancer(c *hcloud.Client) (*LoadBalancer, error) {
 		loadBalancerID = n.ID
 	}
 	if loadBalancerID == 0 {
-		klog.InfoS("%s: %s empty", op, hcloudLoadBalancerENVVar)
+		klog.Info(fmt.Sprintf("%s: %s empty", op, hcloudLoadBalancerENVVar))
 	}
 
 	return &LoadBalancer{
@@ -45,6 +45,11 @@ func newLoadBalancer(c *hcloud.Client) (*LoadBalancer, error) {
 
 func (l *LoadBalancer) Register(c *Cloud, server *hcloud.Server) error {
 	const op = "hcloud-connect/registerLoadBalancer"
+
+	// Load balancer not configured
+	if l.loadBalancerID == 0 {
+		return nil
+	}
 
 	lb, _, err := c.Client.LoadBalancer.GetByID(context.Background(), l.loadBalancerID)
 	if err != nil {
@@ -66,6 +71,11 @@ func (l *LoadBalancer) Register(c *Cloud, server *hcloud.Server) error {
 
 func (l *LoadBalancer) Deregister(c *Cloud, server *hcloud.Server) error {
 	const op = "hcloud-connect/deregisterLoadBalancer"
+
+	// Load balancer not configured
+	if l.loadBalancerID == 0 {
+		return nil
+	}
 
 	lb, _, err := c.Client.LoadBalancer.GetByID(context.Background(), l.loadBalancerID)
 	if err != nil {
