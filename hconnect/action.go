@@ -1,7 +1,9 @@
+/*
+Inspired by action.go in hcloud-cloud-controller-manager
+https://github.com/hetznercloud/hcloud-cloud-controller-manager/blob/b54847b9163a3fc39dd902ab2f5f0494003b7230/internal/hcops/action.go
+*/
 package hconnect
 
-// Inspired by action.go in hcloud-cloud-controller-manager
-// https://github.com/hetznercloud/hcloud-cloud-controller-manager/blob/b54847b9163a3fc39dd902ab2f5f0494003b7230/internal/hcops/action.go
 import (
 	"context"
 

@@ -21,8 +21,11 @@ const (
 type Firewall struct {
 	// IDs of firewalls that the current node will be
 	// added to as a resource
-	firwallResIDs      []int
+	firwallResIDs []int
+	// IDs of the firewalls to whose rules the IPs of this
+	// node are added
 	firewallTargetsIDs []int
+	// Whether to also add the IPv6 addresses to the rules
 	firewallTargetsIP6 bool
 }
 
@@ -152,7 +155,7 @@ func getFirewalls(c *hcloud.Client) (*map[int]*hcloud.Firewall, error) {
 func inputToIDs(input string, firewalls *map[int]*hcloud.Firewall) (ids []int, err error) {
 	splitted := strings.Split(strings.ToLower(input), ",")
 
-OUTER:
+	OUTER:
 	for _, split := range splitted {
 		for key, value := range *firewalls {
 			lowerName := strings.ToLower(value.Name)
