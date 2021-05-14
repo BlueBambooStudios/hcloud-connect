@@ -37,6 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Printf("Hetzner Cloud k8s connect %s started\n", hconnect.ProviderVersion)
 	klog.InfoS("hcloud-connect waiting for shutdown...")
 
 	// wait for stop signal then unregister

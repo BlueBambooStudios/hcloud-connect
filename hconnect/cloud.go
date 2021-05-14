@@ -9,11 +9,11 @@ import (
 )
 
 const (
+	ProviderVersion      = "v1.0.0"
 	hcloudTokenENVVar    = "HCLOUD_TOKEN"
 	hcloudEndpointENVVar = "HCLOUD_ENDPOINT"
 	hcloudDebugENVVar    = "HCLOUD_DEBUG"
 	nodeNameENVVar       = "NODE_NAME"
-	providerVersion      = "v1.0.0"
 )
 
 type Cloud struct {
@@ -41,7 +41,7 @@ func NewCloud() (*Cloud, error) {
 
 	opts := []hcloud.ClientOption{
 		hcloud.WithToken(token),
-		hcloud.WithApplication("hcloud-connect", providerVersion),
+		hcloud.WithApplication("hcloud-connect", ProviderVersion),
 	}
 	if os.Getenv(hcloudDebugENVVar) == "true" {
 		opts = append(opts, hcloud.WithDebugWriter(os.Stderr))
@@ -68,7 +68,6 @@ func NewCloud() (*Cloud, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	fmt.Printf("Hetzner Cloud k8s connect %s started\n", providerVersion)
 
 	return &Cloud{
 		Client:       client,
