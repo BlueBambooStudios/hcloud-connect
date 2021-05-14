@@ -17,8 +17,8 @@ const (
 )
 
 type Cloud struct {
-	client       *hcloud.Client
-	nodeName     string
+	Client       *hcloud.Client
+	NodeName     string
 	LoadBalancer *LoadBalancer
 }
 
@@ -63,8 +63,8 @@ func NewCloud() (*Cloud, error) {
 	fmt.Printf("Hetzner Cloud k8s connect %s started\n", providerVersion)
 
 	return &Cloud{
-		client:       client,
-		nodeName:     nodeName,
+		Client:       client,
+		NodeName:     nodeName,
 		LoadBalancer: loadBalancer,
 	}, nil
 }

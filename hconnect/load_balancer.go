@@ -43,18 +43,10 @@ func newLoadBalancer(c *hcloud.Client) (*LoadBalancer, error) {
 	}, nil
 }
 
-func (l *LoadBalancer) Register(c *Cloud) error {
+func (l *LoadBalancer) Register(c *Cloud, server *hcloud.Server) error {
 	const op = "hcloud-connect/registerLoadBalancer"
 
-	server, _, err := c.client.Server.GetByName(context.Background(), c.nodeName)
-	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
-	}
-	if server == nil {
-		return fmt.Errorf("instance not found")
-	}
-
-	lb, _, err := c.client.LoadBalancer.GetByID(context.Background(), l.loadBalancerID)
+	lb, _, err := c.Client.LoadBalancer.GetByID(context.Background(), l.loadBalancerID)
 	if err != nil {
 		return err
 	}
@@ -64,7 +56,7 @@ func (l *LoadBalancer) Register(c *Cloud) error {
 		UsePrivateIP: hcloud.Bool(l.privateNetwork),
 	}
 
-	_, _, err = c.client.LoadBalancer.AddServerTarget(context.Background(), lb, opts)
+	_, _, err = c.Client.LoadBalancer.AddServerTarget(context.Background(), lb, opts)
 	if err != nil {
 		return err
 	}
@@ -72,23 +64,15 @@ func (l *LoadBalancer) Register(c *Cloud) error {
 	return nil
 }
 
-func (l *LoadBalancer) Deregister(c *Cloud) error {
+func (l *LoadBalancer) Deregister(c *Cloud, server *hcloud.Server) error {
 	const op = "hcloud-connect/deregisterLoadBalancer"
 
-	server, _, err := c.client.Server.GetByName(context.Background(), c.nodeName)
-	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
-	}
-	if server == nil {
-		return fmt.Errorf("instance not found")
-	}
-
-	lb, _, err := c.client.LoadBalancer.GetByID(context.Background(), l.loadBalancerID)
+	lb, _, err := c.Client.LoadBalancer.GetByID(context.Background(), l.loadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	_, _, err = c.client.LoadBalancer.RemoveServerTarget(context.Background(), lb, server)
+	_, _, err = c.Client.LoadBalancer.RemoveServerTarget(context.Background(), lb, server)
 	if err != nil {
 		return err
 	}

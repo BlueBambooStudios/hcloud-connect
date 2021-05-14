@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -8,6 +10,7 @@ import (
 	"time"
 
 	"github.com/bluebamboostudios/hcloud-connect/hconnect"
+	"github.com/hetznercloud/hcloud-go/hcloud"
 	"k8s.io/component-base/logs"
 	"k8s.io/klog/v2"
 
@@ -49,8 +52,13 @@ func main() {
 
 func register(c *hconnect.Cloud) error {
 	var err error
-	err = c.LoadBalancer.Register(c)
 
+	server, err := getServer(c)
+	if err != nil {
+		return err
+	}
+
+	err = c.LoadBalancer.Register(c, server)
 	if err != nil && !strings.Contains(err.Error(), "target_already_defined") {
 		return err
 	}
@@ -60,11 +68,28 @@ func register(c *hconnect.Cloud) error {
 
 func deregister(c *hconnect.Cloud) error {
 	var err error
-	err = c.LoadBalancer.Register(c)
 
+	server, err := getServer(c)
+	if err != nil {
+		return err
+	}
+
+	err = c.LoadBalancer.Register(c, server)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func getServer(c *hconnect.Cloud) (server *hcloud.Server, err error) {
+	server, _, err = c.Client.Server.GetByName(context.Background(), c.NodeName)
+	if err != nil {
+		return nil, err
+	}
+	if server == nil {
+		return nil, fmt.Errorf("instance not found")
+	}
+
+	return server, nil
 }
