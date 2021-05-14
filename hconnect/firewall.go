@@ -13,13 +13,17 @@ import (
 )
 
 const (
-	hcloudFirewallResENVVar = "HCLOUD_FIREWALL_RESOURCE"
+	hcloudFirewallResENVVar        = "HCLOUD_FIREWALL_RESOURCE"
+	hcloudFirewallTargetsENVVar    = "HCLOUD_FIREWALL_TARGETS"
+	hcloudFirewallTargetsIP6ENVVar = "HCLOUD_FIREWALL_TARGETS_IPV6"
 )
 
 type Firewall struct {
 	// IDs of firewalls that the current node will be
 	// added to as a resource
-	firwallResIDs []int
+	firwallResIDs      []int
+	firewallTargetsIDs []int
+	firewallTargetsIP6 bool
 }
 
 // Fetches firewall ids from the user provided name/ids
@@ -43,8 +47,24 @@ func newFirewall(c *hcloud.Client) (*Firewall, error) {
 		}
 	}
 
+	var fwTargetsIDs []int = nil
+	var fwTargetsIP6 bool = false
+	if v, ok := os.LookupEnv(hcloudFirewallTargetsENVVar); ok {
+		fwTargetsIDs, err = inputToIDs(v, firewalls)
+
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		if v2, ok := os.LookupEnv(hcloudFirewallTargetsIP6ENVVar); ok {
+			fwTargetsIP6 = strings.TrimSpace(v2) != ""
+		}
+	}
+
 	return &Firewall{
-		firwallResIDs: fwResIDs,
+		firwallResIDs:      fwResIDs,
+		firewallTargetsIDs: fwTargetsIDs,
+		firewallTargetsIP6: fwTargetsIP6,
 	}, nil
 }
 
@@ -61,6 +81,12 @@ func (f *Firewall) Register(c *Cloud, server *hcloud.Server) error {
 
 	if f.firwallResIDs != nil {
 		if err := f.registerFirewallsRes(c, server, firewalls); err != nil {
+			return err
+		}
+	}
+
+	if f.firewallTargetsIDs != nil {
+		if err := f.registerFirewallsTarget(c, server, firewalls); err != nil {
 			return err
 		}
 	}
@@ -84,6 +110,12 @@ func (f *Firewall) Deregister(c *Cloud, server *hcloud.Server) error {
 
 	if f.firwallResIDs != nil {
 		if err := f.deregisterFirewallsRes(c, server, firewalls); err != nil {
+			return err
+		}
+	}
+
+	if f.firewallTargetsIDs != nil {
+		if err := f.deregisterFirewallsTarget(c, server, firewalls); err != nil {
 			return err
 		}
 	}
@@ -143,7 +175,7 @@ OUTER:
 // 'err' the error to check
 // Returns true when a backoff is required
 func checkConflictOrLockBackoff(err error) bool {
-	if !hcloud.IsError(err, hcloud.ErrorCodeLocked) && !hcloud.IsError(err, hcloud.ErrorCodeConflict) {
+	if !hcloud.IsError(err, hcloud.ErrorCodeLocked) && !hcloud.IsError(err, hcloud.ErrorCodeConflict) && !hcloud.IsError(err, hcloud.ErrorCodeRateLimitExceeded) {
 		return false
 	}
 
@@ -159,16 +191,4 @@ func checkConflictOrLockBackoff(err error) bool {
 func errBackoff(op string, cause string, delay time.Duration, err error) {
 	klog.InfoS("retry due to ", cause, " op: ", op, " delay: ", fmt.Sprintf("%v", delay), " err: ", fmt.Sprintf("%v", err))
 	time.Sleep(delay)
-}
-
-// Checks if a 'firewall' already has 'server' as a resource
-// Returns true if the 'server' is already a resource of 'firewall'
-func firewallHasResource(server *hcloud.Server, firewall *hcloud.Firewall) bool {
-	for _, res := range firewall.AppliedTo {
-		if res.Server.ID == server.ID {
-			return true
-		}
-	}
-
-	return false
 }

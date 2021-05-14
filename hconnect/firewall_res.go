@@ -127,3 +127,15 @@ func removeFirewallRes(op string, c *Cloud, server *hcloud.Server, firewall *hcl
 
 	return WatchAction(context.Background(), &c.Client.Action, actions[0])
 }
+
+// Checks if a 'firewall' already has 'server' as a resource
+// Returns true if the 'server' is already a resource of 'firewall'
+func firewallHasResource(server *hcloud.Server, firewall *hcloud.Firewall) bool {
+	for _, res := range firewall.AppliedTo {
+		if res.Server.ID == server.ID {
+			return true
+		}
+	}
+
+	return false
+}
