@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/bluebamboostudios/hcloud-connect/hconnect"
@@ -40,14 +41,18 @@ func main() {
 
 	// wait for stop signal then unregister
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	<-c
+
+	klog.InfoS("Shutting down ...")
 
 	if err := deregister(cloud); err != nil {
 		klog.ErrorS(err, "hcloud-connect failed")
 		os.Exit(1)
 	}
+
+	klog.InfoS("Shutdown successful!")
 }
 
 // Registers everything (startup)
