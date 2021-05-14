@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bluebamboostudios/hcloud-connect/hconnect"
 	"k8s.io/component-base/logs"
 	"k8s.io/klog/v2"
 
@@ -20,15 +21,14 @@ func main() {
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
-	cloud, err := newCloud()
+	cloud, err := hconnect.NewCloud()
 	if err != nil {
 		klog.ErrorS(err, "hcloud-connect failed")
 		os.Exit(1)
 	}
 
 	// on start register with the load balancer
-	err = cloud.Register()
-	if err != nil && !strings.Contains(err.Error(), "target_already_defined") {
+	if err := register(cloud); err != nil {
 		klog.ErrorS(err, "hcloud-connect failed")
 		os.Exit(1)
 	}
@@ -41,8 +41,30 @@ func main() {
 
 	<-c
 
-	if err := cloud.Deregister(); err != nil {
+	if err := deregister(cloud); err != nil {
 		klog.ErrorS(err, "hcloud-connect failed")
 		os.Exit(1)
 	}
+}
+
+func register(c *hconnect.Cloud) error {
+	var err error
+	err = c.LoadBalancer.Register(c)
+
+	if err != nil && !strings.Contains(err.Error(), "target_already_defined") {
+		return err
+	}
+
+	return nil
+}
+
+func deregister(c *hconnect.Cloud) error {
+	var err error
+	err = c.LoadBalancer.Register(c)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
